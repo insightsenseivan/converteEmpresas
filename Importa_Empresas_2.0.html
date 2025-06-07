@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>e-Conversor Empresas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6A5ACD;
+            --secondary-color: #000000;
+            --accent-color: darkorange;
+            --text-color: #ffffff;
+            --panel-bg: rgba(61, 61, 61, 0.8);
+            --border-radius: 12px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .logo {
+            height: 60px;
+            margin-right: 15px;
+        }
+        
+        .title-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin: 0;
+            text-shadow: 0 0 10px var(--primary-color),
+                         0 0 20px var(--primary-color),
+                         0 0 30px var(--primary-color),
+                         0 0 40px var(--primary-color);
+            color: #fff;
+            animation: neon 1.5s ease-in-out infinite alternate;
+        }
+        
+        @keyframes neon {
+            from {
+                text-shadow: 0 0 10px var(--primary-color),
+                             0 0 20px var(--primary-color),
+                             0 0 30px var(--primary-color);
+            }
+            to {
+                text-shadow: 0 0 5px var(--primary-color),
+                             0 0 10px var(--primary-color),
+                             0 0 15px var(--primary-color),
+                             0 0 20px var(--primary-color),
+                             0 0 35px var(--primary-color),
+                             0 0 40px var(--primary-color);
+            }
+        }
+        
+        .panel {
+            background-color: var(--panel-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .panel:hover {
+            transform: translateY(-5px);
+        }
+        
+        .panel-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+            color: var(--accent-color);
+        }
+        
+        textarea {
+            width: 100%;
+            height: 150px;
+            background-color: rgba(42, 42, 42, 0.7);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            padding: 12px;
+            resize: vertical;
+            font-family: 'Roboto', monospace;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.3);
+        }
+        
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            margin-right: 12px;
+            margin-top: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:hover {
+            background-color: #ff8c00;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .table-wrapper {
+            position: relative;
+            max-height: 400px;
+            overflow: auto;
+            margin-top: 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 14px;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        th {
+            background-color: rgba(68, 68, 68, 0.9);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-weight: 500;
+            color: var(--accent-color);
+        }
+        
+        /* Primeira coluna fixa */
+        th:first-child, td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            background-color: rgba(68, 68, 68, 0.9);
+        }
+        
+        /* Quando a primeira coluna é também cabeçalho */
+        th:first-child {
+            z-index: 15;
+        }
+        
+        tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .editable {
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            min-height: 20px;
+        }
+        
+        .editable:hover::after {
+            content: "✏️";
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        .editable:focus {
+            outline: 2px solid var(--accent-color);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .progress-container {
+            margin-top: 15px;
+            display: none;
+        }
+        
+        progress {
+            width: 100%;
+            height: 20px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        progress::-webkit-progress-bar {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+        }
+        
+        progress::-webkit-progress-value {
+            background: linear-gradient(90deg, var(--accent-color), #ff8c00);
+            border-radius: var(--border-radius);
+        }
+        
+        progress::-moz-progress-bar {
+            background: linear-gradient(90deg, var(--accent-color), #ff8c00);
+            border-radius: var(--border-radius);
+        }
+        
+        #progressStatus {
+            margin-top: 8px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .error-message {
+            color: #ff6b6b;
+            background-color: rgba(255, 107, 107, 0.1);
+            border-left: 3px solid #ff6b6b;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: var(--border-radius);
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .panel {
+                padding: 15px;
+            }
+            
+            button {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            
+            .button-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title-container">
+                <h1>e-Conversor de Empresas</h1>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <div class="panel-title">Lista de CNPJs</div>
+            <textarea id="cnpjInput" placeholder="Insira os CNPJs (um por linha, ou separados por vírgula, ponto e vírgula ou espaço)"></textarea>
+            <div class="button-container">
+                <button id="btnImportar">Importar da RFB</button>
+                <button id="btnLimpar">Limpar</button>
+            </div>
+            <div class="progress-container" id="progressContainer">
+                <progress id="progressBar" value="0" max="100"></progress>
+                <div id="progressStatus">Processando...</div>
+            </div>
+            <div id="errorMessage" class="error-message"></div>
+        </div>
+        
+        <div class="panel">
+            <div class="panel-title">Empresas Convertidas</div>
+            <div class="table-wrapper">
+                <table id="empresasTable">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Razão Social</th>
+                            <th>Nome Fantasia</th>
+                            <th>Tipo</th>
+                            <th>CNPJ</th>
+                            <th>UF</th>
+                            <th>Endereço</th>
+                            <th>Número</th>
+                            <th>Bairro</th>
+                            <th>Cidade</th>
+                            <th>CEP</th>
+                            <th>Complemento</th>
+                            <th>Telefone</th>
+                            <th>Email</th>
+                            <th>Atividade</th>
+                            <th>Contato</th>
+                            <th>Cargo</th>
+                            <th>Observação</th>
+                            <th>Data Situação</th>
+                            <th>Natureza Jurídica</th>
+                            <th>CNAE</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="button-container">
+                <button id="btnExportar" disabled>Gerar TXT</button>
+                <button id="btnAjuda">Ajuda</button>
+            </div>
+        </div>
+
+        <div class="panel" id="panelNaoConvertidas" style="display: none;">
+            <div class="panel-title">Empresas Não Convertidas</div>
+            <div class="table-wrapper">
+                <table id="naoConvertidasTable">
+                    <thead>
+                        <tr>
+                            <th>CNPJ</th>
+                            <th>Erro</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cnpjInput = document.getElementById('cnpjInput');
+            const btnImportar = document.getElementById('btnImportar');
+            const btnLimpar = document.getElementById('btnLimpar');
+            const btnExportar = document.getElementById('btnExportar');
+            const btnAjuda = document.getElementById('btnAjuda');
+            const empresasTable = document.getElementById('empresasTable');
+            const naoConvertidasTable = document.getElementById('naoConvertidasTable');
+            const progressBar = document.getElementById('progressBar');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressStatus = document.getElementById('progressStatus');
+            const panelNaoConvertidas = document.getElementById('panelNaoConvertidas');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            let codigoEmpresaCounter = 1;
+            
+            btnLimpar.addEventListener('click', function() {
+                const tbody = empresasTable.querySelector('tbody');
+                tbody.innerHTML = '';
+                const naoConvertidasTbody = naoConvertidasTable.querySelector('tbody');
+                naoConvertidasTbody.innerHTML = '';
+                cnpjInput.value = '';
+                btnExportar.disabled = true;
+                panelNaoConvertidas.style.display = 'none';
+                errorMessage.style.display = 'none';
+            });
+            
+            btnImportar.addEventListener('click', function() {
+                const cnpjsInput = cnpjInput.value.trim();
+                if (!cnpjsInput) {
+                    showError('Informe ao menos um CNPJ.');
+                    return;
+                }
+                
+                const startCodeInput = prompt('Informe o número inicial para o Código Empresa:', '1');
+                if (startCodeInput === null) {
+                    return;
+                }
+                
+                const startCodigo = parseInt(startCodeInput);
+                if (isNaN(startCodigo) || startCodigo <= 0) {
+                    showError('O código inicial deve ser um número positivo.');
+                    return;
+                }
+                
+                codigoEmpresaCounter = startCodigo;
+                
+                const cnpjs = cnpjsInput.split(/[\n,;\s]+/);
+                const validCnpjs = [];
+                
+                for (const cnpj of cnpjs) {
+                    const cleanedCnpj = cnpj.replace(/[^0-9]/g, '');
+                    if (cleanedCnpj.length === 14) {
+                        validCnpjs.push(cleanedCnpj);
+                    }
+                }
+                
+                if (validCnpjs.length === 0) {
+                    showError('Nenhum CNPJ válido encontrado.');
+                    return;
+                }
+                
+                const tbody = empresasTable.querySelector('tbody');
+                tbody.innerHTML = '';
+                const naoConvertidasTbody = naoConvertidasTable.querySelector('tbody');
+                naoConvertidasTbody.innerHTML = '';
+                
+                btnImportar.disabled = true;
+                btnExportar.disabled = true;
+                btnLimpar.disabled = true;
+                errorMessage.style.display = 'none';
+                
+                progressContainer.style.display = 'block';
+                progressBar.max = validCnpjs.length;
+                progressBar.value = 0;
+                
+                processarCNPJs(validCnpjs, 0, tbody, naoConvertidasTbody);
+            });
+            
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 5000);
+            }
+            
+            function processarCNPJs(cnpjs, index, tbody, naoConvertidasTbody) {
+                if (index >= cnpjs.length) {
+                    btnImportar.disabled = false;
+                    btnLimpar.disabled = false;
+                    btnExportar.disabled = false;
+                    progressContainer.style.display = 'none';
+                    if (naoConvertidasTbody.rows.length > 0) {
+                        panelNaoConvertidas.style.display = 'block';
+                    }
+                    alert('Importação concluída. Você pode editar os dados clicando nas células antes de gerar o TXT.');
+                    return;
+                }
+                
+                const cnpj = cnpjs[index];
+                progressBar.value = index + 1;
+                progressStatus.textContent = `Processando ${index + 1} de ${cnpjs.length}`;
+                
+                fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Erro ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const row = tbody.insertRow();
+                        
+                        // Código
+                        const cellCodigo = row.insertCell();
+                        cellCodigo.textContent = codigoEmpresaCounter;
+                        cellCodigo.classList.add('editable');
+                        makeEditable(cellCodigo);
+                        
+                        // Razão Social
+                        const cellRazaoSocial = row.insertCell();
+                        cellRazaoSocial.textContent = data.razao_social || '';
+                        cellRazaoSocial.classList.add('editable');
+                        makeEditable(cellRazaoSocial);
+                        
+                        // Nome Fantasia
+                        const cellNomeFantasia = row.insertCell();
+                        cellNomeFantasia.textContent = data.nome_fantasia || data.razao_social || '';
+                        cellNomeFantasia.classList.add('editable');
+                        makeEditable(cellNomeFantasia);
+                        
+                        // Tipo
+                        const cellTipo = row.insertCell();
+                        cellTipo.textContent = '1';
+                        cellTipo.classList.add('editable');
+                        makeEditable(cellTipo);
+                        
+                        // CNPJ
+                        const cellCnpj = row.insertCell();
+                        cellCnpj.textContent = data.cnpj ? data.cnpj.replace(/[^0-9]/g, '') : cnpj;
+                        cellCnpj.classList.add('editable');
+                        makeEditable(cellCnpj);
+                        
+                        // UF
+                        const cellUf = row.insertCell();
+                        cellUf.textContent = data.uf || '';
+                        cellUf.classList.add('editable');
+                        makeEditable(cellUf);
+                        
+                        // Endereço
+                        const cellEndereco = row.insertCell();
+                        const tipoLogradouro = data.descricao_tipo_de_logradouro || '';
+                        const logradouro = data.logradouro || '';
+                        cellEndereco.textContent = (tipoLogradouro ? tipoLogradouro + ' ' : '') + logradouro;
+                        cellEndereco.classList.add('editable');
+                        makeEditable(cellEndereco);
+                        
+                        // Número
+                        const cellNumero = row.insertCell();
+                        const numeroValue = data.numero || '';
+                        cellNumero.textContent = (numeroValue.toUpperCase() === 'SN' || numeroValue.toUpperCase() === 'S/N') ? '' : numeroValue;
+                        cellNumero.classList.add('editable');
+                        makeEditable(cellNumero);
+                        
+                        // Bairro
+                        const cellBairro = row.insertCell();
+                        cellBairro.textContent = data.bairro || '';
+                        cellBairro.classList.add('editable');
+                        makeEditable(cellBairro);
+                        
+                        // Cidade
+                        const cellCidade = row.insertCell();
+                        cellCidade.textContent = data.municipio || '';
+                        cellCidade.classList.add('editable');
+                        makeEditable(cellCidade);
+                        
+                        // CEP
+                        const cellCep = row.insertCell();
+                        cellCep.textContent = formatCep(data.cep);
+                        cellCep.classList.add('editable');
+                        makeEditable(cellCep);
+                        
+                        // Complemento
+                        const cellComplemento = row.insertCell();
+                        cellComplemento.textContent = data.complemento || '';
+                        cellComplemento.classList.add('editable');
+                        makeEditable(cellComplemento);
+                        
+                        // Telefone
+                        const cellTelefone = row.insertCell();
+                        cellTelefone.textContent = data.ddd_telefone_1 || '';
+                        cellTelefone.classList.add('editable');
+                        makeEditable(cellTelefone);
+                        
+                        // Email
+                        const cellEmail = row.insertCell();
+                        cellEmail.textContent = '';
+                        cellEmail.classList.add('editable');
+                        makeEditable(cellEmail);
+                        
+                        // Atividade
+                        const cellAtividade = row.insertCell();
+                        cellAtividade.textContent = data.cnae_fiscal_descricao || '';
+                        cellAtividade.classList.add('editable');
+                        makeEditable(cellAtividade);
+                        
+                        // Contato
+                        const cellContato = row.insertCell();
+                        cellContato.textContent = '';
+                        cellContato.classList.add('editable');
+                        makeEditable(cellContato);
+                        
+                        // Cargo
+                        const cellCargo = row.insertCell();
+                        cellCargo.textContent = '';
+                        cellCargo.classList.add('editable');
+                        makeEditable(cellCargo);
+                        
+                        // Observação
+                        const cellObservacao = row.insertCell();
+                        cellObservacao.textContent = '';
+                        cellObservacao.classList.add('editable');
+                        makeEditable(cellObservacao);
+                        
+                        // Data Situação
+                        const cellDataSituacao = row.insertCell();
+                        cellDataSituacao.textContent = data.data_situacao_cadastral || '';
+                        cellDataSituacao.classList.add('editable');
+                        makeEditable(cellDataSituacao);
+                        
+                        // Natureza Jurídica
+                        const cellNaturezaJuridica = row.insertCell();
+                        cellNaturezaJuridica.textContent = data.codigo_natureza_juridica || '';
+                        cellNaturezaJuridica.classList.add('editable');
+                        makeEditable(cellNaturezaJuridica);
+                        
+                        // CNAE
+                        const cellCnae = row.insertCell();
+                        cellCnae.textContent = data.cnae_fiscal || '';
+                        cellCnae.classList.add('editable');
+                        makeEditable(cellCnae);
+                        
+                        codigoEmpresaCounter++;
+                    })
+                    .catch(error => {
+                        console.error(`Erro ao buscar CNPJ ${cnpj}:`, error);
+                        
+                        const row = naoConvertidasTbody.insertRow();
+                        const cellCnpj = row.insertCell();
+                        cellCnpj.textContent = cnpj;
+                        const cellErro = row.insertCell();
+                        cellErro.textContent = error.message;
+                    })
+                    .finally(() => {
+                        setTimeout(() => {
+                            processarCNPJs(cnpjs, index + 1, tbody, naoConvertidasTbody);
+                        }, 350);
+                    });
+            }
+            
+            function makeEditable(cell) {
+                cell.setAttribute('contenteditable', 'true');
+                cell.addEventListener('focus', function() {
+                    const selection = window.getSelection();
+                    const range = document.createRange();
+                    range.selectNodeContents(this);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                });
+            }
+            
+            function formatCep(cep) {
+                if (!cep) return '';
+                
+                const cleaned = cep.replace(/[^0-9]/g, '');
+                if (cleaned.length !== 8) return cleaned;
+                
+                return `${cleaned.substring(0, 5)}-${cleaned.substring(5, 8)}`;
+            }
+            
+            btnExportar.addEventListener('click', function() {
+                const tbody = empresasTable.querySelector('tbody');
+                if (tbody.rows.length === 0) {
+                    showError('Não há dados na tabela para exportar.');
+                    return;
+                }
+                
+                let txtContent = '';
+                
+                for (let i = 0; i < tbody.rows.length; i++) {
+                    const row = tbody.rows[i];
+                    const rowData = [];
+                    
+                    for (let j = 0; j < row.cells.length; j++) {
+                        const cellValue = row.cells[j].textContent || '';
+                        rowData.push(cellValue);
+                    }
+                    
+                    txtContent += rowData.join(';') + '\n';
+                }
+                
+                const blob = new Blob([txtContent], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'empresas_exportadas.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+
+            btnAjuda.addEventListener('click', function() {
+                window.open('ajuda.html', '_blank');
+            });
+        });
+    </script>
+</body>
+</html>
+

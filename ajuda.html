@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajuda - e-Conversor de Empresas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6A5ACD;
+            --secondary-color: #000000;
+            --accent-color: darkorange;
+            --text-color: #ffffff;
+            --panel-bg: rgba(61, 61, 61, 0.8);
+            --border-radius: 12px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin: 0;
+            text-shadow: 0 0 10px var(--primary-color),
+                         0 0 20px var(--primary-color),
+                         0 0 30px var(--primary-color),
+                         0 0 40px var(--primary-color);
+            color: #fff;
+            animation: neon 1.5s ease-in-out infinite alternate;
+        }
+        
+        @keyframes neon {
+            from {
+                text-shadow: 0 0 10px var(--primary-color),
+                             0 0 20px var(--primary-color),
+                             0 0 30px var(--primary-color);
+            }
+            to {
+                text-shadow: 0 0 5px var(--primary-color),
+                             0 0 10px var(--primary-color),
+                             0 0 15px var(--primary-color),
+                             0 0 20px var(--primary-color),
+                             0 0 35px var(--primary-color),
+                             0 0 40px var(--primary-color);
+            }
+        }
+        
+        .panel {
+            background-color: var(--panel-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .panel:hover {
+            transform: translateY(-5px);
+        }
+        
+        .panel-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+            color: var(--accent-color);
+        }
+        
+        p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            color: var(--accent-color);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+        
+        ol, ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Ajuda - e-Conversor de Empresas</h1>
+        </div>
+        
+        <div class="panel">
+            <div class="panel-title">Bem-vindo ao e-Conversor de Empresas!</div>
+            <p>Esta ferramenta foi desenvolvida para facilitar a importação de dados de empresas diretamente do site da Receita Federal e a geração de um arquivo TXT compatível com outros sistemas.</p>
+            <img src="ajuda_images/main_interface.png" alt="Interface Principal">
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">1. Importando Empresas da Receita Federal</div>
+            <p>Para importar os dados de uma ou mais empresas, siga os passos abaixo:</p>
+            <ol>
+                <li>No campo 
+
+
+<strong>Lista de CNPJs</strong>, insira os CNPJs que deseja importar. Você pode inserir um CNPJ por linha, ou separá-los por vírgula, ponto e vírgula ou espaço.</p>
+            <img src="ajuda_images/cnpj_input.png" alt="Entrada de CNPJ">
+            <li>Clique no botão <strong>Importar da RFB</strong>.</li>
+            <li>Será solicitado que você informe o número inicial para o <strong>Código Empresa</strong>. Este código será usado para identificar as empresas importadas.</li>
+            <li>A ferramenta irá processar cada CNPJ, buscando os dados na Receita Federal. Você verá uma barra de progresso indicando o andamento.</li>
+            <li>Após a importação, as empresas convertidas serão exibidas na tabela <strong>Empresas Convertidas</strong>.</li>
+            </ol>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">2. Editando Dados na Tabela</div>
+            <p>Você pode editar qualquer dado na tabela <strong>Empresas Convertidas</strong> antes de gerar o arquivo TXT. Basta clicar na célula que deseja editar e fazer as alterações necessárias.</p>
+            <img src="ajuda_images/table_edit.png" alt="Edição de Tabela">
+            <p>Ao passar o mouse sobre uma célula editável, um ícone de lápis (✏️) aparecerá, indicando que a célula pode ser modificada.</p>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">3. Empresas Não Convertidas</div>
+            <p>Se alguma empresa não puder ser importada (por CNPJ inválido, erro na Receita Federal, etc.), ela será listada no painel <strong>Empresas Não Convertidas</strong>, juntamente com o erro ocorrido.</p>
+            <img src="ajuda_images/error_panel.png" alt="Empresas Não Convertidas">
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">4. Gerando o Arquivo TXT</div>
+            <p>Após importar e, se necessário, editar os dados das empresas, você pode gerar o arquivo TXT para importação em outros sistemas:</p>
+            <ol>
+                <li>Clique no botão <strong>Gerar TXT</strong>.</li>
+                <img src="ajuda_images/export_txt.png" alt="Gerar TXT">
+                <li>Um arquivo chamado <code>empresas_exportadas.txt</code> será baixado para o seu computador, contendo todos os dados da tabela <strong>Empresas Convertidas</strong>, prontos para serem utilizados em seu sistema.</li>
+            </ol>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">Dicas Importantes</div>
+            <ul>
+                <li>Certifique-se de que sua conexão com a internet está ativa para importar dados da Receita Federal.</li>
+                <li>Verifique a formatação dos CNPJs inseridos para evitar erros de importação.</li>
+                <li>O código inicial da empresa é sequencial e será incrementado automaticamente para cada empresa importada.</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+
