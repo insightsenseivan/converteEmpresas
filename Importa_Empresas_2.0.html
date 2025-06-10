@@ -1091,7 +1091,42 @@
                     txtContent += rowData.join(';') + '\n';
                 }
                 
-                const blob = new Blob([txtContent], { type: 'text/plain' });
+                // Converter para ANSI (Windows-1252)
+                const encoder = new TextEncoder();
+                const decoder = new TextDecoder('utf-8');
+                
+                // Função para converter UTF-8 para Windows-1252 (ANSI)
+                function utf8ToAnsi(str) {
+                    const utf8Map = {
+                        'á': '\xe1', 'à': '\xe0', 'ã': '\xe3', 'â': '\xe2', 'ä': '\xe4',
+                        'é': '\xe9', 'è': '\xe8', 'ê': '\xea', 'ë': '\xeb',
+                        'í': '\xed', 'ì': '\xec', 'î': '\xee', 'ï': '\xef',
+                        'ó': '\xf3', 'ò': '\xf2', 'õ': '\xf5', 'ô': '\xf4', 'ö': '\xf6',
+                        'ú': '\xfa', 'ù': '\xf9', 'û': '\xfb', 'ü': '\xfc',
+                        'ç': '\xe7', 'ñ': '\xf1',
+                        'Á': '\xc1', 'À': '\xc0', 'Ã': '\xc3', 'Â': '\xc2', 'Ä': '\xc4',
+                        'É': '\xc9', 'È': '\xc8', 'Ê': '\xca', 'Ë': '\xcb',
+                        'Í': '\xcd', 'Ì': '\xcc', 'Î': '\xce', 'Ï': '\xcf',
+                        'Ó': '\xd3', 'Ò': '\xd2', 'Õ': '\xd5', 'Ô': '\xd4', 'Ö': '\xd6',
+                        'Ú': '\xda', 'Ù': '\xd9', 'Û': '\xdb', 'Ü': '\xdc',
+                        'Ç': '\xc7', 'Ñ': '\xd1'
+                    };
+                    
+                    let result = '';
+                    for (let i = 0; i < str.length; i++) {
+                        const char = str[i];
+                        result += utf8Map[char] || char;
+                    }
+                    return result;
+                }
+                
+                const ansiContent = utf8ToAnsi(txtContent);
+                const uint8Array = new Uint8Array(ansiContent.length);
+                for (let i = 0; i < ansiContent.length; i++) {
+                    uint8Array[i] = ansiContent.charCodeAt(i);
+                }
+                
+                const blob = new Blob([uint8Array], { type: 'text/plain;charset=windows-1252' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
