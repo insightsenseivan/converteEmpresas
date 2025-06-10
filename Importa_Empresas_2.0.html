@@ -33,7 +33,7 @@
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         
@@ -161,7 +161,7 @@
         
         .table-wrapper {
             position: relative;
-            max-height: 400px;
+            max-height: 500px;
             overflow: auto;
             margin-top: 15px;
             border-radius: var(--border-radius);
@@ -172,13 +172,15 @@
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            font-size: 14px;
+            font-size: 12px;
         }
         
         th, td {
-            padding: 10px;
+            padding: 8px;
             text-align: left;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            white-space: nowrap;
+            min-width: 80px;
         }
         
         th {
@@ -188,6 +190,7 @@
             z-index: 10;
             font-weight: 500;
             color: var(--accent-color);
+            font-size: 11px;
         }
         
         /* Primeira coluna fixa */
@@ -224,7 +227,7 @@
             right: 5px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 12px;
+            font-size: 10px;
             opacity: 0.7;
         }
         
@@ -282,6 +285,82 @@
             border-radius: var(--border-radius);
             display: none;
         }
+
+        /* Estilos para o painel de alteração em lote */
+        .batch-edit-panel {
+            background-color: var(--panel-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+
+        .batch-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        select {
+            background-color: rgba(42, 42, 42, 0.7);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            padding: 8px 12px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        input[type="text"] {
+            background-color: rgba(42, 42, 42, 0.7);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            padding: 8px 12px;
+            font-size: 14px;
+            min-width: 200px;
+        }
+
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.3);
+        }
+
+        .selected-row {
+            background-color: rgba(255, 140, 0, 0.4) !important;
+            border: 2px solid rgba(255, 140, 0, 0.8) !important;
+        }
+
+        .selected-row:hover {
+            background-color: rgba(255, 140, 0, 0.5) !important;
+        }
+
+        /* Cursor pointer para linhas quando em modo de seleção */
+        .batch-mode tbody tr {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .batch-mode tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.15) !important;
+        }
+
+        /* Instruções de seleção */
+        .selection-instructions {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 10px;
+            padding: 8px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-color);
+        }
         
         @media (max-width: 768px) {
             .header {
@@ -304,6 +383,21 @@
             
             .button-container {
                 flex-direction: column;
+            }
+
+            .batch-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            select, input[type="text"] {
+                min-width: auto;
+                width: 100%;
+            }
+
+            th, td {
+                font-size: 10px;
+                padding: 6px;
             }
         }
     </style>
@@ -329,34 +423,75 @@
             </div>
             <div id="errorMessage" class="error-message"></div>
         </div>
+
+        <!-- Painel de Alteração em Lote -->
+        <div class="batch-edit-panel" id="batchEditPanel">
+            <div class="panel-title">Alteração em Lote</div>
+            <div class="batch-controls">
+                <label for="columnSelect">Coluna:</label>
+                <select id="columnSelect">
+                    <option value="">Selecione uma coluna</option>
+                </select>
+                <label for="newValue">Novo Valor:</label>
+                <input type="text" id="newValue" placeholder="Digite o novo valor">
+                <button id="btnApplyBatch">Aplicar Alteração</button>
+                <button id="btnClearSelection">Limpar Seleção</button>
+            </div>
+            <div id="selectedCount">Nenhuma linha selecionada</div>
+            <div class="selection-instructions">
+                <strong>Instruções de seleção:</strong><br>
+                • Clique simples: seleciona uma linha (limpa seleção anterior)<br>
+                • Ctrl + clique: adiciona/remove linha da seleção<br>
+                • Shift + clique: seleciona intervalo de linhas
+            </div>
+        </div>
         
         <div class="panel">
             <div class="panel-title">Empresas Convertidas</div>
+            <div class="button-container">
+                <button id="btnToggleBatchEdit">Alteração em Lote</button>
+            </div>
             <div class="table-wrapper">
                 <table id="empresasTable">
                     <thead>
                         <tr>
-                            <th>Código</th>
+                            <th>Código Empresa</th>
+                            <th>Apelido</th>
                             <th>Razão Social</th>
-                            <th>Nome Fantasia</th>
-                            <th>Tipo</th>
-                            <th>CNPJ</th>
-                            <th>UF</th>
+                            <th>Tipo Inscrição</th>
+                            <th>Inscrição</th>
+                            <th>Estado</th>
                             <th>Endereço</th>
                             <th>Número</th>
                             <th>Bairro</th>
                             <th>Cidade</th>
                             <th>CEP</th>
                             <th>Complemento</th>
+                            <th>DDD</th>
                             <th>Telefone</th>
-                            <th>Email</th>
-                            <th>Atividade</th>
-                            <th>Contato</th>
-                            <th>Cargo</th>
-                            <th>Observação</th>
-                            <th>Data Situação</th>
+                            <th>Ramo Atividade</th>
+                            <th>Inscrição Estadual</th>
+                            <th>Inscrição Municipal</th>
+                            <th>Inscrição na Junta Comercial</th>
+                            <th>Data de Abertura</th>
                             <th>Natureza Jurídica</th>
-                            <th>CNAE</th>
+                            <th>Código CNAE</th>
+                            <th>CAE</th>
+                            <th>Nome Responsável</th>
+                            <th>Cargo Responsável</th>
+                            <th>CPF Responsável</th>
+                            <th>CEP Responsável</th>
+                            <th>Endereço Responsável</th>
+                            <th>Número endereço Responsável</th>
+                            <th>Complemento Responsável</th>
+                            <th>Bairro Responsável</th>
+                            <th>Estado Responsável</th>
+                            <th>Município Responsável</th>
+                            <th>DDD Responsável</th>
+                            <th>Telefone Responsável</th>
+                            <th>Código país</th>
+                            <th>Objeto Social</th>
+                            <th>Observações</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -393,6 +528,9 @@
             const btnExportar = document.getElementById('btnExportar');
             const btnAjuda = document.getElementById('btnAjuda');
             const btnDownloadConjuntoDados = document.getElementById('btnDownloadConjuntoDados');
+            const btnToggleBatchEdit = document.getElementById('btnToggleBatchEdit');
+            const btnApplyBatch = document.getElementById('btnApplyBatch');
+            const btnClearSelection = document.getElementById('btnClearSelection');
             const empresasTable = document.getElementById('empresasTable');
             const naoConvertidasTable = document.getElementById('naoConvertidasTable');
             const progressBar = document.getElementById('progressBar');
@@ -400,8 +538,150 @@
             const progressStatus = document.getElementById('progressStatus');
             const panelNaoConvertidas = document.getElementById('panelNaoConvertidas');
             const errorMessage = document.getElementById('errorMessage');
+            const batchEditPanel = document.getElementById('batchEditPanel');
+            const columnSelect = document.getElementById('columnSelect');
+            const newValue = document.getElementById('newValue');
+            const selectedCount = document.getElementById('selectedCount');
             
             let codigoEmpresaCounter = 1;
+            let batchEditMode = false;
+            let selectedRows = new Set();
+            
+            // Inicializar opções do combobox de colunas
+            function initializeColumnSelect() {
+                const headers = empresasTable.querySelectorAll('thead th');
+                columnSelect.innerHTML = '<option value="">Selecione uma coluna</option>';
+                
+                headers.forEach((header, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = header.textContent;
+                    columnSelect.appendChild(option);
+                });
+            }
+
+            // Toggle do modo de edição em lote
+            btnToggleBatchEdit.addEventListener('click', function() {
+                batchEditMode = !batchEditMode;
+                if (batchEditMode) {
+                    batchEditPanel.style.display = 'block';
+                    btnToggleBatchEdit.textContent = 'Sair da Alteração em Lote';
+                    empresasTable.classList.add('batch-mode');
+                    initializeColumnSelect();
+                } else {
+                    batchEditPanel.style.display = 'none';
+                    btnToggleBatchEdit.textContent = 'Alteração em Lote';
+                    empresasTable.classList.remove('batch-mode');
+                    clearSelection();
+                }
+            });
+
+            // Limpar seleção
+            function clearSelection() {
+                selectedRows.clear();
+                const rows = empresasTable.querySelectorAll('tbody tr');
+                rows.forEach(row => row.classList.remove('selected-row'));
+                updateSelectedCount();
+            }
+
+            btnClearSelection.addEventListener('click', clearSelection);
+
+            // Atualizar contador de linhas selecionadas
+            function updateSelectedCount() {
+                const count = selectedRows.size;
+                selectedCount.textContent = count === 0 ? 'Nenhuma linha selecionada' : 
+                    `${count} linha${count > 1 ? 's' : ''} selecionada${count > 1 ? 's' : ''}`;
+            }
+
+            // Aplicar alteração em lote
+            btnApplyBatch.addEventListener('click', function() {
+                const columnIndex = parseInt(columnSelect.value);
+                const value = newValue.value.trim();
+                
+                if (isNaN(columnIndex) || columnIndex < 0) {
+                    showError('Selecione uma coluna válida.');
+                    return;
+                }
+                
+                if (selectedRows.size === 0) {
+                    showError('Selecione ao menos uma linha para alterar.');
+                    return;
+                }
+                
+                selectedRows.forEach(rowIndex => {
+                    const row = empresasTable.querySelector(`tbody tr:nth-child(${rowIndex + 1})`);
+                    if (row && row.cells[columnIndex]) {
+                        row.cells[columnIndex].textContent = value;
+                    }
+                });
+                
+                newValue.value = '';
+                clearSelection();
+                showError('Alteração aplicada com sucesso!', false);
+            });
+
+            // Adicionar event listener para seleção de linhas
+            empresasTable.addEventListener('click', function(e) {
+                if (!batchEditMode) return;
+                
+                const row = e.target.closest('tr');
+                if (!row || row.parentElement.tagName === 'THEAD') return;
+                
+                // Prevenir seleção de texto quando clicando rapidamente
+                e.preventDefault();
+                
+                const rowIndex = Array.from(row.parentElement.children).indexOf(row);
+                
+                // Suporte para Ctrl+clique (seleção múltipla)
+                if (e.ctrlKey || e.metaKey) {
+                    if (selectedRows.has(rowIndex)) {
+                        selectedRows.delete(rowIndex);
+                        row.classList.remove('selected-row');
+                    } else {
+                        selectedRows.add(rowIndex);
+                        row.classList.add('selected-row');
+                    }
+                } else {
+                    // Clique simples - limpar seleção anterior e selecionar apenas esta linha
+                    clearSelection();
+                    selectedRows.add(rowIndex);
+                    row.classList.add('selected-row');
+                }
+                
+                updateSelectedCount();
+            });
+
+            // Adicionar event listener para seleção com Shift+clique (seleção em intervalo)
+            let lastSelectedIndex = -1;
+            
+            empresasTable.addEventListener('click', function(e) {
+                if (!batchEditMode) return;
+                
+                const row = e.target.closest('tr');
+                if (!row || row.parentElement.tagName === 'THEAD') return;
+                
+                const rowIndex = Array.from(row.parentElement.children).indexOf(row);
+                
+                if (e.shiftKey && lastSelectedIndex !== -1) {
+                    e.preventDefault();
+                    
+                    // Selecionar intervalo entre lastSelectedIndex e rowIndex
+                    const start = Math.min(lastSelectedIndex, rowIndex);
+                    const end = Math.max(lastSelectedIndex, rowIndex);
+                    
+                    for (let i = start; i <= end; i++) {
+                        const targetRow = empresasTable.querySelector(`tbody tr:nth-child(${i + 1})`);
+                        if (targetRow) {
+                            selectedRows.add(i);
+                            targetRow.classList.add('selected-row');
+                        }
+                    }
+                    
+                    updateSelectedCount();
+                } else if (!e.ctrlKey && !e.metaKey) {
+                    lastSelectedIndex = rowIndex;
+                }
+            });
             
             btnLimpar.addEventListener('click', function() {
                 const tbody = empresasTable.querySelector('tbody');
@@ -412,6 +692,13 @@
                 btnExportar.disabled = true;
                 panelNaoConvertidas.style.display = 'none';
                 errorMessage.style.display = 'none';
+                clearSelection();
+                if (batchEditMode) {
+                    batchEditPanel.style.display = 'none';
+                    btnToggleBatchEdit.textContent = 'Alteração em Lote';
+                    empresasTable.classList.remove('batch-mode');
+                    batchEditMode = false;
+                }
             });
             
             btnImportar.addEventListener('click', function() {
@@ -466,9 +753,12 @@
                 processarCNPJs(validCnpjs, 0, tbody, naoConvertidasTbody);
             });
             
-            function showError(message) {
+            function showError(message, isError = true) {
                 errorMessage.textContent = message;
                 errorMessage.style.display = 'block';
+                errorMessage.style.color = isError ? '#ff6b6b' : '#4CAF50';
+                errorMessage.style.borderLeftColor = isError ? '#ff6b6b' : '#4CAF50';
+                errorMessage.style.backgroundColor = isError ? 'rgba(255, 107, 107, 0.1)' : 'rgba(76, 175, 80, 0.1)';
                 setTimeout(() => {
                     errorMessage.style.display = 'none';
                 }, 5000);
@@ -478,66 +768,72 @@
                 if (index >= cnpjs.length) {
                     btnImportar.disabled = false;
                     btnLimpar.disabled = false;
-                    btnExportar.disabled = false;
                     progressContainer.style.display = 'none';
+                    
+                    if (tbody.rows.length > 0) {
+                        btnExportar.disabled = false;
+                    }
+                    
                     if (naoConvertidasTbody.rows.length > 0) {
                         panelNaoConvertidas.style.display = 'block';
                     }
-                    alert('Importação concluída. Você pode editar os dados clicando nas células antes de gerar o TXT.');
+                    
                     return;
                 }
                 
                 const cnpj = cnpjs[index];
                 progressBar.value = index + 1;
-                progressStatus.textContent = `Processando ${index + 1} de ${cnpjs.length}`;
+                progressStatus.textContent = `Processando ${index + 1} de ${cnpjs.length}: ${cnpj}`;
                 
                 fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`)
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error(`Erro ${response.status}`);
+                            throw new Error(`Erro ${response.status}: ${response.statusText}`);
                         }
                         return response.json();
                     })
                     .then(data => {
                         const row = tbody.insertRow();
                         
-                        // Código
-                        const cellCodigo = row.insertCell();
-                        cellCodigo.textContent = codigoEmpresaCounter;
-                        cellCodigo.classList.add('editable');
-                        makeEditable(cellCodigo);
+                        // Seguindo exatamente o leiaute do PDF - 37 campos
                         
-                        // Razão Social
+                        // 1. Código Empresa (Numérico)
+                        const cellCodigoEmpresa = row.insertCell();
+                        cellCodigoEmpresa.textContent = codigoEmpresaCounter;
+                        cellCodigoEmpresa.classList.add('editable');
+                        makeEditable(cellCodigoEmpresa);
+                        
+                        // 2. Apelido (Caractere)
+                        const cellApelido = row.insertCell();
+                        cellApelido.textContent = data.nome_fantasia || data.razao_social || '';
+                        cellApelido.classList.add('editable');
+                        makeEditable(cellApelido);
+                        
+                        // 3. Razão Social (Caractere)
                         const cellRazaoSocial = row.insertCell();
                         cellRazaoSocial.textContent = data.razao_social || '';
                         cellRazaoSocial.classList.add('editable');
                         makeEditable(cellRazaoSocial);
                         
-                        // Nome Fantasia
-                        const cellNomeFantasia = row.insertCell();
-                        cellNomeFantasia.textContent = data.nome_fantasia || data.razao_social || '';
-                        cellNomeFantasia.classList.add('editable');
-                        makeEditable(cellNomeFantasia);
+                        // 4. Tipo Inscrição (Numérico) - 1 para CNPJ
+                        const cellTipoInscricao = row.insertCell();
+                        cellTipoInscricao.textContent = '1';
+                        cellTipoInscricao.classList.add('editable');
+                        makeEditable(cellTipoInscricao);
                         
-                        // Tipo
-                        const cellTipo = row.insertCell();
-                        cellTipo.textContent = '1';
-                        cellTipo.classList.add('editable');
-                        makeEditable(cellTipo);
+                        // 5. Inscrição (Caractere) - CNPJ
+                        const cellInscricao = row.insertCell();
+                        cellInscricao.textContent = data.cnpj ? data.cnpj.replace(/[^0-9]/g, '') : cnpj;
+                        cellInscricao.classList.add('editable');
+                        makeEditable(cellInscricao);
                         
-                        // CNPJ
-                        const cellCnpj = row.insertCell();
-                        cellCnpj.textContent = data.cnpj ? data.cnpj.replace(/[^0-9]/g, '') : cnpj;
-                        cellCnpj.classList.add('editable');
-                        makeEditable(cellCnpj);
+                        // 6. Estado (Caractere)
+                        const cellEstado = row.insertCell();
+                        cellEstado.textContent = data.uf || '';
+                        cellEstado.classList.add('editable');
+                        makeEditable(cellEstado);
                         
-                        // UF
-                        const cellUf = row.insertCell();
-                        cellUf.textContent = data.uf || '';
-                        cellUf.classList.add('editable');
-                        makeEditable(cellUf);
-                        
-                        // Endereço
+                        // 7. Endereço (Caractere)
                         const cellEndereco = row.insertCell();
                         const tipoLogradouro = data.descricao_tipo_de_logradouro || '';
                         const logradouro = data.logradouro || '';
@@ -545,90 +841,204 @@
                         cellEndereco.classList.add('editable');
                         makeEditable(cellEndereco);
                         
-                        // Número
+                        // 8. Número (Numérico)
                         const cellNumero = row.insertCell();
                         const numeroValue = data.numero || '';
                         cellNumero.textContent = (numeroValue.toUpperCase() === 'SN' || numeroValue.toUpperCase() === 'S/N') ? '' : numeroValue;
                         cellNumero.classList.add('editable');
                         makeEditable(cellNumero);
                         
-                        // Bairro
+                        // 9. Bairro (Caractere)
                         const cellBairro = row.insertCell();
                         cellBairro.textContent = data.bairro || '';
                         cellBairro.classList.add('editable');
                         makeEditable(cellBairro);
                         
-                        // Cidade
+                        // 10. Cidade (Caractere)
                         const cellCidade = row.insertCell();
                         cellCidade.textContent = data.municipio || '';
                         cellCidade.classList.add('editable');
                         makeEditable(cellCidade);
                         
-                        // CEP
+                        // 11. CEP (Caractere)
                         const cellCep = row.insertCell();
-                        cellCep.textContent = formatCep(data.cep);
+                        cellCep.textContent = data.cep ? data.cep.replace(/[^0-9]/g, '') : '';
                         cellCep.classList.add('editable');
                         makeEditable(cellCep);
                         
-                        // Complemento
+                        // 12. Complemento (Caractere)
                         const cellComplemento = row.insertCell();
                         cellComplemento.textContent = data.complemento || '';
                         cellComplemento.classList.add('editable');
                         makeEditable(cellComplemento);
                         
-                        // Telefone
+                        // Separar DDD e Telefone
+                        const telefoneCompleto = data.ddd_telefone_1 || '';
+                        let ddd = '';
+                        let telefone = '';
+                        
+                        if (telefoneCompleto) {
+                            const telefoneNumeros = telefoneCompleto.replace(/[^0-9]/g, '');
+                            if (telefoneNumeros.length >= 10) {
+                                ddd = telefoneNumeros.substring(0, 2);
+                                telefone = telefoneNumeros.substring(2);
+                            } else if (telefoneNumeros.length >= 2) {
+                                ddd = telefoneNumeros.substring(0, 2);
+                                telefone = telefoneNumeros.substring(2);
+                            } else {
+                                telefone = telefoneNumeros;
+                            }
+                        }
+                        
+                        // 13. DDD (Numérico)
+                        const cellDdd = row.insertCell();
+                        cellDdd.textContent = ddd;
+                        cellDdd.classList.add('editable');
+                        makeEditable(cellDdd);
+                        
+                        // 14. Telefone (Caractere)
                         const cellTelefone = row.insertCell();
-                        cellTelefone.textContent = data.ddd_telefone_1 || '';
+                        cellTelefone.textContent = telefone;
                         cellTelefone.classList.add('editable');
                         makeEditable(cellTelefone);
                         
-                        // Email
-                        const cellEmail = row.insertCell();
-                        cellEmail.textContent = '';
-                        cellEmail.classList.add('editable');
-                        makeEditable(cellEmail);
+                        // 15. Ramo Atividade (Caractere)
+                        const cellRamoAtividade = row.insertCell();
+                        cellRamoAtividade.textContent = data.cnae_fiscal_descricao || '';
+                        cellRamoAtividade.classList.add('editable');
+                        makeEditable(cellRamoAtividade);
                         
-                        // Atividade
-                        const cellAtividade = row.insertCell();
-                        cellAtividade.textContent = data.cnae_fiscal_descricao || '';
-                        cellAtividade.classList.add('editable');
-                        makeEditable(cellAtividade);
+                        // 16. Inscrição Estadual (Caractere)
+                        const cellInscricaoEstadual = row.insertCell();
+                        cellInscricaoEstadual.textContent = '';
+                        cellInscricaoEstadual.classList.add('editable');
+                        makeEditable(cellInscricaoEstadual);
                         
-                        // Contato
-                        const cellContato = row.insertCell();
-                        cellContato.textContent = '';
-                        cellContato.classList.add('editable');
-                        makeEditable(cellContato);
+                        // 17. Inscrição Municipal (Caractere)
+                        const cellInscricaoMunicipal = row.insertCell();
+                        cellInscricaoMunicipal.textContent = '';
+                        cellInscricaoMunicipal.classList.add('editable');
+                        makeEditable(cellInscricaoMunicipal);
                         
-                        // Cargo
-                        const cellCargo = row.insertCell();
-                        cellCargo.textContent = '';
-                        cellCargo.classList.add('editable');
-                        makeEditable(cellCargo);
+                        // 18. Inscrição na Junta Comercial (Caractere)
+                        const cellInscricaoJunta = row.insertCell();
+                        cellInscricaoJunta.textContent = '';
+                        cellInscricaoJunta.classList.add('editable');
+                        makeEditable(cellInscricaoJunta);
+                                                // 19. Data Inscrição Junta (Data) - Agora é Data de Abertura
+                        const cellDataInscricaoJunta = row.insertCell();
+                        cellDataInscricaoJunta.textContent = data.data_inicio_atividade || 
+'';
+                        cellDataInscricaoJunta.classList.add('editable');
+                        makeEditable(cellDataInscricaoJunta);
                         
-                        // Observação
-                        const cellObservacao = row.insertCell();
-                        cellObservacao.textContent = '';
-                        cellObservacao.classList.add('editable');
-                        makeEditable(cellObservacao);
-                        
-                        // Data Situação
-                        const cellDataSituacao = row.insertCell();
-                        cellDataSituacao.textContent = data.data_situacao_cadastral || '';
-                        cellDataSituacao.classList.add('editable');
-                        makeEditable(cellDataSituacao);
-                        
-                        // Natureza Jurídica
+                        // 20. Natureza Jurídica (Numérico)
                         const cellNaturezaJuridica = row.insertCell();
                         cellNaturezaJuridica.textContent = data.codigo_natureza_juridica || '';
                         cellNaturezaJuridica.classList.add('editable');
                         makeEditable(cellNaturezaJuridica);
                         
-                        // CNAE
-                        const cellCnae = row.insertCell();
-                        cellCnae.textContent = data.cnae_fiscal || '';
-                        cellCnae.classList.add('editable');
-                        makeEditable(cellCnae);
+                        // 21. Código CNAE (Decimal)
+                        const cellCodigoCnae = row.insertCell();
+                        cellCodigoCnae.textContent = data.cnae_fiscal || '';
+                        cellCodigoCnae.classList.add('editable');
+                        makeEditable(cellCodigoCnae);
+                        
+                        // 22. CAE (Decimal)
+                        const cellCae = row.insertCell();
+                        cellCae.textContent = '';
+                        cellCae.classList.add('editable');
+                        makeEditable(cellCae);
+                        
+                        // 23. Nome Responsável (Caractere)
+                        const cellNomeResponsavel = row.insertCell();
+                        cellNomeResponsavel.textContent = '';
+                        cellNomeResponsavel.classList.add('editable');
+                        makeEditable(cellNomeResponsavel);
+                        
+                        // 24. Cargo Responsável (Caractere)
+                        const cellCargoResponsavel = row.insertCell();
+                        cellCargoResponsavel.textContent = '';
+                        cellCargoResponsavel.classList.add('editable');
+                        makeEditable(cellCargoResponsavel);
+                        
+                        // 25. CPF Responsável (Caractere)
+                        const cellCpfResponsavel = row.insertCell();
+                        cellCpfResponsavel.textContent = '';
+                        cellCpfResponsavel.classList.add('editable');
+                        makeEditable(cellCpfResponsavel);
+                        
+                        // 26. CEP Responsável (Caractere)
+                        const cellCepResponsavel = row.insertCell();
+                        cellCepResponsavel.textContent = '';
+                        cellCepResponsavel.classList.add('editable');
+                        makeEditable(cellCepResponsavel);
+                        
+                        // 27. Endereço Responsável (Caractere)
+                        const cellEnderecoResponsavel = row.insertCell();
+                        cellEnderecoResponsavel.textContent = '';
+                        cellEnderecoResponsavel.classList.add('editable');
+                        makeEditable(cellEnderecoResponsavel);
+                        
+                        // 28. Número endereço Responsável (Numérico)
+                        const cellNumeroResponsavel = row.insertCell();
+                        cellNumeroResponsavel.textContent = '';
+                        cellNumeroResponsavel.classList.add('editable');
+                        makeEditable(cellNumeroResponsavel);
+                        
+                        // 29. Complemento Responsável (Caractere)
+                        const cellComplementoResponsavel = row.insertCell();
+                        cellComplementoResponsavel.textContent = '';
+                        cellComplementoResponsavel.classList.add('editable');
+                        makeEditable(cellComplementoResponsavel);
+                        
+                        // 30. Bairro Responsável (Caractere)
+                        const cellBairroResponsavel = row.insertCell();
+                        cellBairroResponsavel.textContent = '';
+                        cellBairroResponsavel.classList.add('editable');
+                        makeEditable(cellBairroResponsavel);
+                        
+                        // 31. Estado Responsável (Caractere)
+                        const cellEstadoResponsavel = row.insertCell();
+                        cellEstadoResponsavel.textContent = '';
+                        cellEstadoResponsavel.classList.add('editable');
+                        makeEditable(cellEstadoResponsavel);
+                        
+                        // 32. Município Responsável (Numérico)
+                        const cellMunicipioResponsavel = row.insertCell();
+                        cellMunicipioResponsavel.textContent = '';
+                        cellMunicipioResponsavel.classList.add('editable');
+                        makeEditable(cellMunicipioResponsavel);
+                        
+                        // 33. DDD Responsável (Numérico)
+                        const cellDddResponsavel = row.insertCell();
+                        cellDddResponsavel.textContent = '';
+                        cellDddResponsavel.classList.add('editable');
+                        makeEditable(cellDddResponsavel);
+                        
+                        // 34. Telefone Responsável (Caractere)
+                        const cellTelefoneResponsavel = row.insertCell();
+                        cellTelefoneResponsavel.textContent = '';
+                        cellTelefoneResponsavel.classList.add('editable');
+                        makeEditable(cellTelefoneResponsavel);
+                        
+                        // 35. Código país (Numérico)
+                        const cellCodigoPais = row.insertCell();
+                        cellCodigoPais.textContent = '55'; // Brasil
+                        cellCodigoPais.classList.add('editable');
+                        makeEditable(cellCodigoPais);
+                        
+                        // 36. Objeto Social (Caractere)
+                        const cellObjetoSocial = row.insertCell();
+                        cellObjetoSocial.textContent = data.objeto_social || '';
+                        cellObjetoSocial.classList.add('editable');
+                        makeEditable(cellObjetoSocial);
+                        
+                        // 37. Observações (Caractere)
+                        const cellObservacoes = row.insertCell();
+                        cellObservacoes.textContent = '';
+                        cellObservacoes.classList.add('editable');
+                        makeEditable(cellObservacoes);
                         
                         codigoEmpresaCounter++;
                     })
@@ -659,15 +1069,6 @@
                 });
             }
             
-            function formatCep(cep) {
-                if (!cep) return '';
-                
-                const cleaned = cep.replace(/[^0-9]/g, '');
-                if (cleaned.length !== 8) return cleaned;
-                
-                return `${cleaned.substring(0, 5)}-${cleaned.substring(5, 8)}`;
-            }
-            
             btnExportar.addEventListener('click', function() {
                 const tbody = empresasTable.querySelector('tbody');
                 if (tbody.rows.length === 0) {
@@ -681,8 +1082,9 @@
                     const row = tbody.rows[i];
                     const rowData = [];
                     
-                    for (let j = 0; j < row.cells.length; j++) {
-                        const cellValue = row.cells[j].textContent || '';
+                    // Exportar exatamente os 37 campos conforme o leiaute
+                    for (let j = 0; j < 37; j++) {
+                        const cellValue = (row.cells[j] && row.cells[j].textContent) || '';
                         rowData.push(cellValue);
                     }
                     
@@ -706,7 +1108,7 @@
 
             btnDownloadConjuntoDados.addEventListener('click', function() {
                 const link = document.createElement('a');
-                link.href = 'Conjunto_de_dados_2.0.xml'; // Caminho relativo para o arquivo XML no GitHub Pages
+                link.href = 'Conjunto_de_dados_2.0.xml';
                 link.download = 'Conjunto_de_dados_2.0.xml';
                 document.body.appendChild(link);
                 link.click();
